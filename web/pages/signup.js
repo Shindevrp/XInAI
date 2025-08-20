@@ -1,41 +1,47 @@
-
 import { useState } from "react";
-import Link from "next/link";
 
-export default function Login() {
+export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
 
-  async function handleLogin(e) {
+  async function handleSignup(e) {
     e.preventDefault();
     setError("");
-    setLoading(true);
+    setSuccess("");
     try {
-      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/auth/login", {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, name })
       });
       const data = await res.json();
-      if (res.ok && data.token) {
-        localStorage.setItem("token", data.token);
-        window.location.href = "/courses";
+      if (res.ok) {
+        setSuccess("Signup successful! Please log in.");
       } else {
-        setError(data.message || "Login failed");
+        setError(data.message || "Signup failed");
       }
     } catch (err) {
-      setError("Login failed");
+      setError("Signup failed");
     }
-    setLoading(false);
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form onSubmit={handleLogin} className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Log In</h2>
+      <form onSubmit={handleSignup} className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
         {error && <div className="mb-4 text-red-600">{error}</div>}
+        {success && <div className="mb-4 text-green-600">{success}</div>}
+        <input
+          className="w-full mb-4 px-4 py-2 border rounded focus:outline-none focus:ring"
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          required
+        />
         <input
           className="w-full mb-4 px-4 py-2 border rounded focus:outline-none focus:ring"
           type="email"
@@ -55,12 +61,11 @@ export default function Login() {
         <button
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
           type="submit"
-          disabled={loading}
         >
-          {loading ? "Logging in..." : "Log In"}
+          Sign Up
         </button>
         <div className="mt-4 text-center text-sm">
-          Don't have an account? <Link href="/signup" className="text-blue-600 hover:underline">Sign up</Link>
+          Already have an account? <a href="/login" className="text-blue-600 hover:underline">Log in</a>
         </div>
       </form>
     </div>
